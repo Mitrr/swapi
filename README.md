@@ -1,5 +1,12 @@
 # falcon-manager
 
+## Usage
+```
+/ - starting page (redirect to /ships)
+/ships - pages with list of starships with search. Pagination on bottom of this page.
+/ships/:id - starship
+```
+
 ## Project setup
 ```
 npm install
@@ -27,3 +34,4 @@ npm run lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
+

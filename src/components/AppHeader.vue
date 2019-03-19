@@ -1,5 +1,5 @@
 <template>
-    $END$
+    <v-toolbar app dark class="primary">Falcon-manager</v-toolbar>
 </template>
 
 <script>
