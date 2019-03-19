@@ -1,7 +1,7 @@
 <template>
     <v-container grid-list-lg>
-        <p v-if="falcon">get search: {{falcon}}</p>
-        <p v-if="search">ships like {{search}}:{{resultLen}}</p>
+        <p v-if="falcon">search: {{falcon}}</p>
+        <p v-if="search">count of ships like "{{search}}":{{resultLen}}</p>
         <v-layout wrap row>
             <v-flex xs12 sm12 md8 lg10 offset-md2>
                 <v-container fluid>
@@ -14,24 +14,7 @@
                 </v-container>
             </v-flex>
 
-
             <v-flex xs12 sm12 md8 offset-md2 id="card">
-                <!--<v-card v-if="!bigSearch" dark v-for="ship in fList" :key="calculateId(ship.url)" class="mb-4">
-                    <v-container fill-height fluid>
-                        <v-layout fill-height>
-                            <v-flex>
-                                <h2>{{ship.name}}</h2>
-                                <v-card-text>
-                                    <p>model: {{ship.model}}</p>
-                                    <p>manufacturer: {{ship.manufacturer}}</p>
-                                    <p>hyperdrive_rating: {{ship.hyperdrive_rating}}</p>
-                                </v-card-text>
-                                <v-divider></v-divider>
-                                <v-btn class="open-btn" light :to="'/ships/'+calculateId(ship.url)">Open Details</v-btn>
-                            </v-flex>
-                        </v-layout>
-                    </v-container>
-                </v-card>-->
                 <v-card v-if="true" dark v-for="ship in filteredbigList" :key="calculateId(ship.url)" class="mb-4">
                     <v-container fill-height fluid>
                         <v-layout fill-height>
@@ -99,34 +82,26 @@
             },
             loadAllShips(){
                 for (let i = 1; i<5; i++){
-                    fetch(`https://swapi.co/api/starships/?page=${i}`).then(res => res.json())
-                        .then(json => {
-                            for (let j = 0; j<json.results.length; j++){
-                                this.bigList.push(json.results[j]);
-                            }
-                        })
-                        .catch(err => console.warn(err));
+                    if (i===1){
+                        fetch('https://swapi.co/api/starships/').then(res => res.json())
+                            .then(json => {
+                                this.nextListLink = json.next;
+                                this.prevListLink = json.previous;
+                                this.fList = json.results;
+                            })
+                            .catch(err => console.warn(err));
+                    }
+                        fetch(`https://swapi.co/api/starships/?page=${i}`).then(res => res.json())
+                            .then(json => {
+                                for (let j = 0; j<json.results.length; j++){
+                                    this.bigList.push(json.results[j]);
+                                }
+                            })
+                            .catch(err => console.warn(err));
                 }
             }
         },
         computed:{
-            filteredShips(){
-                let shipsList = this.fList;
-
-                if (this.querySearch && !this.search){
-                    shipsList = this.bigList.filter(n => n.name.toLowerCase().indexOf(this.querySearch.toLowerCase()) === 0);
-                    this.resultLen = shipsList.length;
-                }
-                else if (this.search){
-                    shipsList = this.bigList.filter(n => n.name.toLowerCase().indexOf(this.search.toLowerCase()) === 0);
-                    this.resultLen = shipsList.length;
-                }
-                else if (!this.search && !this.querySearch){
-                    shipsList = this.fList;
-                    this.resultLen = null;
-                }
-                return shipsList;
-            },
             filteredbigList(){
                 let shipsList = this.bigList;
                 if (this.querySearch && !this.search){
@@ -144,20 +119,10 @@
                 return shipsList;
             },
             bigSearch(){
-                if (this.search || this.querySearch){
-                    return true;
-                } else return false;
+                return !!(this.search || this.querySearch);
             }
         },
         created() {
-            fetch('https://swapi.co/api/starships/').then(res => res.json())
-                .then(json => {
-                    this.nextListLink = json.next;
-                    this.prevListLink = json.previous;
-                    this.fList = json.results;
-                })
-                .catch(err => console.warn(err));
-
             this.loadAllShips()
         }
     }
